@@ -50,10 +50,15 @@ router.post('/submit', async (req, res) => {
 
         // --- Save the result using the Database Service ---
         const savedRecord = await db.saveResult(finalResult);
-        console.log(`Result saved with ID: ${savedRecord.id}`);
+        // Normalize id for clients: prefer MongoDB _id as string, fall back to legacy numeric id
+        const responseRecord = {
+            ...savedRecord,
+            id: savedRecord._id ? savedRecord._id.toString() : savedRecord.id
+        };
+        console.log(`Result saved with ID: ${responseRecord.id}`);
 
         // Return the saved record to the client (which now includes a database ID)
-        res.status(201).json(savedRecord);
+        res.status(201).json(responseRecord);
 
     } catch (error) {
         console.error('Error processing assessment results:', error);
@@ -67,7 +72,9 @@ router.post('/submit', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const allResults = await db.getAllResults();
-        res.status(200).json(allResults);
+        // Ensure each record exposes an `id` string for compatibility
+        const mapped = (allResults || []).map(r => ({ ...r, id: r._id ? r._id.toString() : r.id }));
+        res.status(200).json(mapped);
     } catch (error) {
         console.error('Error retrieving all results:', error);
         res.status(500).json({ msg: 'Server error while retrieving results.' });
@@ -83,7 +90,9 @@ router.get('/:id', async (req, res) => {
         if (!result) {
             return res.status(404).json({ msg: 'Result not found.' });
         }
-        res.status(200).json(result);
+        // Expose `id` string for compatibility
+        const mapped = { ...result, id: result._id ? result._id.toString() : result.id };
+        res.status(200).json(mapped);
     } catch (error) {
         console.error(`Error retrieving result with id ${req.params.id}:`, error);
         res.status(500).json({ msg: 'Server error while retrieving result.' });
