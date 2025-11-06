@@ -1,0 +1,17 @@
+{
+  "name": "learning-companion-app-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "lucide-react": "^0.552.0",
+    "react-icons": "^5.5.0",
+    "tailwindcss": "^4.1.16"
+  }
+}
